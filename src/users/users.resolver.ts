@@ -2,14 +2,14 @@ import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { CreateAccountOutput, CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { User } from "./entities/user.entitiy";
-import { UsersService } from "./users.service";
+import { UserService } from "./users.service";
 
 
 
 @Resolver(of => User)
 export class UsersResolver {
     constructor(
-        private readonly usersService : UsersService
+        private readonly usersService : UserService
     ) {}
 
     @Query(returns => Boolean)
@@ -43,4 +43,8 @@ export class UsersResolver {
         }
     }
 
+    @Query(returns => User)
+    me() {
+        
+    }
 }

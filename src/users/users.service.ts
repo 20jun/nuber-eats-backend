@@ -1,17 +1,22 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import * as jwt from 'jsonwebtoken';
 import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
 import { User } from "./entities/user.entitiy";
+import { ConfigService } from "@nestjs/config";
+import { JwtService } from "src/jwt/jwt.service";
 
 
 
 @Injectable()
-export class UsersService {
+export class UserService {
     constructor(
-        @InjectRepository(User) private readonly users : Repository<User>
-    ) {}
+        @InjectRepository(User) private readonly users : Repository<User>,
+        private readonly jwtService : JwtService,
+    ) {
+    }
 
     async createAccount({email, password, role} : CreateAccountInput) : Promise<{ok : boolean; error? : string}> {
         try {
@@ -28,8 +33,6 @@ export class UsersService {
     async login({
         email, password
     } : LoginInput) : Promise<{ok : boolean; error? : string, token? : string}> {
-        // check if the password is correct
-        // make a JWT and give it to the user
         // 1. find the user with the email
         try {
             const user = await this.users.findOne({email});
@@ -39,7 +42,8 @@ export class UsersService {
                     error : 'User not found',
                 };
             }
-
+            
+            // check if the password is correct
             const passwordCorrect = await user.checkPassword(password);
             if(!passwordCorrect) {
                 return {
@@ -47,9 +51,11 @@ export class UsersService {
                     error : 'Wrong password',
                 }
             }
+            // 내부에 담겨진 정보 자체가 아닌, 정보의 진위 여부가 중요하다는 것
+            const token = this.jwtService.sign(user.id);
             return {
                 ok : true,
-                token : 'lalalalala',
+                token,
             }
         } catch(error) {
             return {
@@ -57,5 +63,9 @@ export class UsersService {
                 error,
             }
         }
+    }
+    // make a JWT and give it to the user
+    async findById(id : number) : Promise<User>{
+        return this.users.findOne({id});
     }
 }
