@@ -5,6 +5,9 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { Restaurant } from './restaurants/entities/restaurant.entitiy';
+import { UsersModule } from './users/users.module';
+import { User } from './users/entities/user.entitiy';
+import { CommonModule } from './common/common.module';
 
 console.log(Joi);
 @Module({
@@ -33,12 +36,14 @@ console.log(Joi);
       logging : true,
       // TypeOrmModule에 Restaurant라고 하는 entitiy를 가지고있고
       // DB가 됨
-      entities : [Restaurant]
+      entities : [User],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
     }),
-    RestaurantsModule,
+
+    UsersModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],
