@@ -1,5 +1,5 @@
 import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
-import { BeforeInsert, Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
 // 암호를 해시하는데 도움이 되는 라이브러리
 import * as bcrypt from 'bcrypt';
 import { CoreEntity } from "src/common/entities/core.entity";
@@ -25,7 +25,7 @@ export class User extends CoreEntity{
     @IsEmail()
     email : string;
     
-    @Column()
+    @Column({select : false})
     @Field(type => String)
     password : string;
     
@@ -34,17 +34,24 @@ export class User extends CoreEntity{
     @IsEnum(UserRole)
     role : UserRole;
 
+    // User의 email이 verify 됐는지 안 됐는지를 저장하기 위해 만듦
+    @Column({default : false })
+    @Field(type => Boolean)
+    verified : boolean;
 
     // BeforeInsert : DB에 저장하기 전에 password 해시
     @BeforeInsert()
+    @BeforeUpdate()
     // async : 비동기
     async hashPassword() : Promise<void> {
-        try {
-            // bcrypt : 암호를 해시하는데 도움이 되는 라이브러리
-            this.password = await bcrypt.hash(this.password, 10);
-        } catch(e) {
-            console.log(e);
-            throw new InternalServerErrorException();
+        if(this.password) {
+            try {
+                // bcrypt : 암호를 해시하는데 도움이 되는 라이브러리
+                this.password = await bcrypt.hash(this.password, 10);
+            } catch(e) {
+                console.log(e);
+                throw new InternalServerErrorException();
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import { User } from './users/entities/user.entitiy';
 import { CommonModule } from './common/common.module';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
+import { Verification } from './users/entities/verification.entity';
 
 console.log(Joi);
 @Module({
@@ -38,14 +39,14 @@ console.log(Joi);
       logging : true,
       // TypeOrmModule에 Restaurant라고 하는 entitiy를 가지고있고
       // DB가 됨
-      entities : [User],
+      entities : [User, Verification],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+      context : ({req}) => ({ user : req['user']}),
     }),
 
     UsersModule,
-    CommonModule,
     JwtModule.forRoot({
       privateKey : process.env.PRIVATE_KEY,
     }),
@@ -57,6 +58,6 @@ export class AppModule implements NestModule {
   configure(consumer : MiddlewareConsumer) {
     consumer
     .apply(JwtMiddleware)
-    .forRoutes({ path : '/graphql', method : RequestMethod.ALL });
+    .forRoutes({ path : '/graphql', method : RequestMethod.POST });
   }
 }
