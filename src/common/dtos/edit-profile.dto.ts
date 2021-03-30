@@ -1,5 +1,5 @@
 import { InputType, ObjectType, PartialType, PickType } from "@nestjs/graphql";
-import { User } from "src/users/entities/user.entitiy";
+import { User } from "src/users/entities/user.entity";
 import { CoreOutput } from "./output.dto";
 
 
