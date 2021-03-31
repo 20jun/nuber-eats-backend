@@ -20,7 +20,7 @@ registerEnumType(UserRole, {name : 'UserRole'});
 @Entity()
 export class User extends CoreEntity{
 
-    @Column()
+    @Column({ unique : true })
     @Field(type => String)
     @IsEmail()
     email : string;
@@ -38,6 +38,7 @@ export class User extends CoreEntity{
     @Column({default : false })
     @Field(type => Boolean)
     verified : boolean;
+  id: number;
 
     // BeforeInsert : DB에 저장하기 전에 password 해시
     @BeforeInsert()
