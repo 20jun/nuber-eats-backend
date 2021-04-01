@@ -2,6 +2,7 @@ import { UseGuards } from "@nestjs/common";
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
+import { Role } from "src/auth/role.decorator";
 import { EditProfileInput, EditProfileOutput } from "src/common/dtos/edit-profile.dto";
 import { VerifyEmailInput, VerifyEmailOutput } from "src/common/dtos/verify-email.dto";
 import { CreateAccountOutput, CreateAccountInput } from "./dtos/create-account.dto";
@@ -31,23 +32,23 @@ export class UsersResolver {
     @Query(returns => User)
     // authentication : 누가 자원을 요청하는지 확인하는 과정, token으로 identity를 확인
     // authorization : user가 어떤 일을 하기 전에 permission을 가지고 있는지 확인하는 과정
-    @UseGuards(AuthGuard)
+    @Role(['Any'])
     me(@AuthUser() authUser : User) {
         return authUser;
     }
     
     //user의 profile을 볼 수 있는 query
-    @UseGuards(AuthGuard)
+    @Role(['Any'])
     @Query(returns => UserProfileOutput)
     async userProfile(
         @Args() userProfileInput : UserProfileInput,
-    ) : Promise<UserProfileOutput>{
+        ) : Promise<UserProfileOutput>{
             return this.usersService.findById(userProfileInput.userId);
-    }
-
-
+        }
+        
+        
     @Mutation(returns => EditProfileOutput)
-    @UseGuards(AuthGuard)
+    @Role(['Any'])
     async editProfile(
         @AuthUser() authUser : User, 
         @Args('input') editProfileInput : EditProfileInput,

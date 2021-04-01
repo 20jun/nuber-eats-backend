@@ -1,21 +1,22 @@
 import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
-import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from "typeorm";
 // 암호를 해시하는데 도움이 되는 라이브러리
 import * as bcrypt from 'bcrypt';
 import { CoreEntity } from "src/common/entities/core.entity";
 import { InternalServerErrorException } from "@nestjs/common";
-import { IsEmail, IsEnum } from "class-validator";
+import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
+import { Restaurant } from "src/restaurants/entities/restaurant.entitiy";
 
 
-enum UserRole {
-    Client,
-    Owner,
-    Delivery,
+export enum UserRole {
+    Client = 'Client',
+    Owner = 'Owner',
+    Delivery = 'Delivery',
 }
 
 registerEnumType(UserRole, {name : 'UserRole'});
 
-@InputType({isAbstract : true})
+@InputType('UserInputType',{isAbstract : true})
 @ObjectType()
 @Entity()
 export class User extends CoreEntity{
@@ -27,6 +28,7 @@ export class User extends CoreEntity{
     
     @Column({select : false})
     @Field(type => String)
+    @IsString()
     password : string;
     
     @Column({type : 'enum', enum : UserRole})
@@ -37,8 +39,12 @@ export class User extends CoreEntity{
     // User의 email이 verify 됐는지 안 됐는지를 저장하기 위해 만듦
     @Column({default : false })
     @Field(type => Boolean)
+    @IsBoolean()
     verified : boolean;
-  id: number;
+
+    @Field(type => [Restaurant])
+    @OneToMany(type => Restaurant, restaurant => restaurant.owner)
+    restaurants : Restaurant[];
 
     // BeforeInsert : DB에 저장하기 전에 password 해시
     @BeforeInsert()

@@ -10,6 +10,10 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
+import { Restaurant } from './restaurants/entities/restaurant.entitiy';
+import { Category } from './restaurants/entities/category.entity';
+import { RestaurantsModule } from './restaurants/restaurants.module';
+import { AuthModule } from './auth/auth.module';
 
 console.log(Joi);
 @Module({
@@ -44,22 +48,24 @@ console.log(Joi);
       process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
       // TypeOrmModule에 Restaurant라고 하는 entitiy를 가지고있고
       // DB가 됨
-      entities : [User, Verification],
+      entities : [User, Verification, Restaurant, Category],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
       context : ({req}) => ({ user : req['user']}),
     }),
 
+    JwtModule.forRoot({
+      privateKey : process.env.PRIVATE_KEY,
+    }),
     MailModule.forRoot({
       apiKey : process.env.MAILGUN_API_KEY,
       domain : process.env.MAILGUN_DOMAIN_NAME,  
       fromEmail : process.env.MAILGUN_FROM_EMAIL,
     }),
+    AuthModule,
     UsersModule,
-    JwtModule.forRoot({
-      privateKey : process.env.PRIVATE_KEY,
-    }),
+    RestaurantsModule,
   ],
   controllers: [],
   providers: [],
