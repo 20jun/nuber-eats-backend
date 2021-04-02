@@ -5,7 +5,6 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
-import { CommonModule } from './common/common.module';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { Verification } from './users/entities/verification.entity';
@@ -14,6 +13,10 @@ import { Restaurant } from './restaurants/entities/restaurant.entitiy';
 import { Category } from './restaurants/entities/category.entity';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { AuthModule } from './auth/auth.module';
+import { Dish } from './restaurants/entities/dish.entity';
+import { OrdersModule } from './orders/orders.module';
+import { Order } from './orders/entities/order.entity';
+import { OrderItem } from './orders/entities/order-item.entity';
 
 console.log(Joi);
 @Module({
@@ -48,7 +51,7 @@ console.log(Joi);
       process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
       // TypeOrmModule에 Restaurant라고 하는 entitiy를 가지고있고
       // DB가 됨
-      entities : [User, Verification, Restaurant, Category],
+      entities : [User, Verification, Restaurant, Category, Dish, Order, OrderItem],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -66,6 +69,7 @@ console.log(Joi);
     AuthModule,
     UsersModule,
     RestaurantsModule,
+    OrdersModule,
   ],
   controllers: [],
   providers: [],

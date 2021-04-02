@@ -1,9 +1,11 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsString, Length } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
+import { Order } from "src/orders/entities/order.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { Category } from "./category.entity";
+import { Dish } from "./dish.entity";
 
 // 클래스 하나로 graphQL 스키마, DB에 저장되는 실제 데이터의 형식을 만들 수 있음
 
@@ -48,6 +50,21 @@ export class Restaurant extends CoreEntity {
     )
     owner : User;
 
+    @Field(type => [Order])
+    @OneToMany(
+        type => Order,
+        order => order.restaurant,
+    )
+    orders : Order[];
+
+
     @RelationId((restaurant : Restaurant) => restaurant.owner)
     ownerId : number;
+
+    @Field(type => [Dish])
+    @OneToMany(
+        type => Dish,
+        dish => dish.restaurant,
+    )
+    menu : Dish[];
 }
